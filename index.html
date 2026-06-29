@@ -441,7 +441,7 @@
     
     <!-- Subtítulo / Versão do Painel (Texto Cinza e Discreto abaixo da logo) -->
     <p class="brand-subtitle" style="margin: 0; padding: 0; font-size: 0.875rem; color: #6E6E73; font-weight: 500; letter-spacing: 0.3px;">
-        PAINEL ADMINISTRATIVO v2906.4
+        PAINEL ADMINISTRATIVO v2906.5
     </p>
 
 </div>
@@ -2045,11 +2045,17 @@ function gerenciarTravaMutuaDatas() {
 /**
  * ENGINE MASTER: Abre o painel restrito disparando telemetria em tempo real
  */
+/**
+ * ENGINE MASTER: Abre o painel restrito disparando telemetria em tempo real
+ */
 function abrirPainelRestritoAdmin(event) {
   if (event) event.preventDefault();
   
+  // 🔧 CORREÇÃO 1: Garante a abertura imediata do modal na tela antes do ping assíncrono
   const modalAdmin = document.getElementById("modalPainelAdmin");
-  if (modalAdmin) modalAdmin.style.display = "flex";
+  if (modalAdmin) {
+    modalAdmin.style.display = "flex";
+  }
 
   // =======================================================================
   // 🚀 GATILHO DE RENDERIZAÇÃO DINÂMICA DE ENDPOINTS (MÁXIMA ESCALA 27 UFs)
@@ -2058,7 +2064,6 @@ function abrirPainelRestritoAdmin(event) {
   if (containerDinamico && typeof REGIONAIS_WEB_APPS !== "undefined") {
     let htmlEndpoints = "";
     
-    // Nomes por extenso das UFs para manter o seu padrão elegante de escrita
     const nomesExtensoUFs = {
       "PR": "PR/PRW1", "RS": "RS/RSW1", "SC": "SC/SCW1",
       "SP": "SP/SPW1", "SP1": "SP/DSP1", "RJ": "RJ/RJW5", "MG": "MG/MNW5",
@@ -2067,10 +2072,8 @@ function abrirPainelRestritoAdmin(event) {
       "SE": "SE/SEW1"
     };
     
-    // Varre todas as chaves cadastradas no seu dicionário REGIONAIS_WEB_APPS
     Object.keys(REGIONAIS_WEB_APPS).forEach(function(ufChave) {
       const nomeEstado = nomesExtensoUFs[ufChave] || `Regional ${ufChave}`;
-      
       htmlEndpoints += `
         <div class="diagnostico-item">
           <span>Endpoint Ativo ${ufChave} (${nomeEstado})</span>
@@ -2078,11 +2081,10 @@ function abrirPainelRestritoAdmin(event) {
         </div>
       `;
     });
-    
-    containerDinamico.innerHTML = htmlEndpoints; // Injeta todas as UFs ativas de uma vez só
+    containerDinamico.innerHTML = htmlEndpoints;
   }
   
-  // 1. Alimenta imediatamente a listagem local com o operador conectado
+  // Alimenta listagem local com o operador conectado
   const corpoOnline = document.getElementById("listaUsuariosOnlineAdmin");
   const elNome = document.getElementById("nomeUsuarioDoca");
   const nomeUsuarioLogado = elNome ? elNome.innerText : "Operador Ativo";
@@ -2105,7 +2107,6 @@ function abrirPainelRestritoAdmin(event) {
   const seletorUfComponente = document.getElementById("filtroUF");
   const ufRealSelecionada = seletorUfComponente ? seletorUfComponente.value.toUpperCase().trim() : "";
 
-  // 🚀 CAMINHO DINÂMICO A: Consulta o dicionário mestre de rede escalável
   if (ufRealSelecionada !== "" && typeof REGIONAIS_WEB_APPS !== "undefined") {
     if (REGIONAIS_WEB_APPS[ufRealSelecionada]) {
       urlParaAdminPing = REGIONAIS_WEB_APPS[ufRealSelecionada];
@@ -2113,7 +2114,7 @@ function abrirPainelRestritoAdmin(event) {
     }
   }
   
-  // 🚀 FALLBACK INTELIGENTE EM LOTE: Se o painel for aberto em modo "Visão Geral" (sem UF)
+  // Fallback Inteligente
   if (!urlParaAdminPing || urlParaAdminPing === "") {
     if (typeof REGIONAIS_WEB_APPS !== "undefined") {
       const chavesUfsAtivas = Object.keys(REGIONAIS_WEB_APPS);
@@ -2124,7 +2125,6 @@ function abrirPainelRestritoAdmin(event) {
     }
   }
 
-  // Trava de auditoria final caso o dicionário mestre de rede não esteja acessível
   if (!urlParaAdminPing || urlParaAdminPing === "") {
     if(document.getElementById("adminKpiLatencia")) document.getElementById("adminKpiLatencia").innerText = "Sem Link";
     if(document.getElementById("adminKpiRequests")) document.getElementById("adminKpiRequests").innerText = "0";
@@ -2132,7 +2132,6 @@ function abrirPainelRestritoAdmin(event) {
     return;
   }
 
-  // Preparação de Cronômetro e Callbacks dinâmicos
   const tempoInicioCronometro = Date.now();
   const callbackAdminName = "cbAdminTelemetria_" + Date.now();
   
@@ -2140,11 +2139,10 @@ function abrirPainelRestritoAdmin(event) {
   if(document.getElementById("adminKpiRequests")) document.getElementById("adminKpiRequests").innerText = "...";
 
   // =======================================================================
-  // 🎯 PROCESSAMENTO DO RETORNO DE TELEMETRIA (CALLBACK ASÍNCRONO)
+  // 🎯 CALLBACK ASÍNCRONO COM TRAVAS DE SEGURANÇA ANTICRASH
   // =======================================================================
   window[callbackAdminName] = function(resposta) {
     if (resposta && resposta.success) {
-      // Medição precisa de Latência em segundos
       const latenciaCalculada = ((Date.now() - tempoInicioCronometro) / 1000).toFixed(2);
       const latenciaNum = parseFloat(latenciaCalculada);
       
@@ -2160,33 +2158,42 @@ function abrirPainelRestritoAdmin(event) {
       if(document.getElementById("adminKpiOnline")) document.getElementById("adminKpiOnline").innerText = resposta.usuariosOnline || 1;
       if(document.getElementById("adminKpiStatus")) document.getElementById("adminKpiStatus").innerHTML = `<span style="color: #34C759; font-weight: 700;">100% OK</span>`;
       
-      // 📊 1. Renderização Dinâmica da Barra: Google Sheets Density (Limite: 10M Células)
-      const celulasMilhoes = (resposta.telemetria.gridCelulasUsadas / 1000000).toFixed(2);
-      const elTxtPctGrid = document.getElementById("txt-pct-grid");
-      const elBarFillGrid = document.getElementById("bar-fill-grid");
-      const elLblValGrid = document.getElementById("lbl-val-grid");
-      
-      if (elTxtPctGrid) elTxtPctGrid.innerText = resposta.telemetria.gridPercentual + "%";
-      if (elBarFillGrid) elBarFillGrid.style.width = resposta.telemetria.gridPercentual + "%";
-      if (elLblValGrid) elLblValGrid.innerText = celulasMilhoes + " M";
+      // 🔧 CORREÇÃO 2: Valida se a propriedade 'telemetria' existe no payload retornado pelo Apps Script
+      if (resposta.telemetria) {
+        // 📊 Renderização: Google Sheets Density
+        const celulasMilhoes = (resposta.telemetria.gridCelulasUsadas / 1000000).toFixed(2);
+        const elTxtPctGrid = document.getElementById("txt-pct-grid");
+        const elBarFillGrid = document.getElementById("bar-fill-grid");
+        const elLblValGrid = document.getElementById("lbl-val-grid");
+        
+        if (elTxtPctGrid) elTxtPctGrid.innerText = (resposta.telemetria.gridPercentual || 0) + "%";
+        if (elBarFillGrid) elBarFillGrid.style.width = (resposta.telemetria.gridPercentual || 0) + "%";
+        if (elLblValGrid) elLblValGrid.innerText = celulasMilhoes + " M";
 
-      // 📧 2. Renderização Dinâmica da Barra: Gmail Quota Limits (Limite: 100 Diários)
-      const elTxtPctEmail = document.getElementById("txt-pct-email");
-      const elBarFillEmail = document.getElementById("bar-fill-email");
-      const elLblValEmail = document.getElementById("lbl-val-email");
-      
-      if (elTxtPctEmail) elTxtPctEmail.innerText = resposta.telemetria.emailsPercentualUsado + "%";
-      if (elBarFillEmail) elBarFillEmail.style.width = resposta.telemetria.emailsPercentualUsado + "%";
-      if (elLblValEmail) elLblValEmail.innerText = resposta.telemetria.emailsEnviados;
+        // 📧 Renderização: Gmail Quota Limits
+        const elTxtPctEmail = document.getElementById("txt-pct-email");
+        const elBarFillEmail = document.getElementById("bar-fill-email");
+        const elLblValEmail = document.getElementById("lbl-val-email");
+        
+        if (elTxtPctEmail) elTxtPctEmail.innerText = (resposta.telemetria.emailsPercentualUsado || 0) + "%";
+        if (elBarFillEmail) elBarFillEmail.style.width = (resposta.telemetria.emailsPercentualUsado || 0) + "%";
+        if (elLblValEmail) elLblValEmail.innerText = resposta.telemetria.emailsEnviados || 0;
 
-      // 💾 3. Renderização Dinâmica da Barra: Google Drive Global Storage (Limite: 15 GB)
-      const elTxtPctDrive = document.getElementById("txt-pct-drive");
-      const elBarFillDrive = document.getElementById("bar-fill-drive");
-      const elLblValDrive = document.getElementById("lbl-val-drive");
-      
-      if (elTxtPctDrive) elTxtPctDrive.innerText = resposta.telemetria.drivePercentual + "%";
-      if (elBarFillDrive) elBarFillDrive.style.width = resposta.telemetria.drivePercentual + "%";
-      if (elLblValDrive) elLblValDrive.innerText = resposta.telemetria.driveOcupadoGB + " GB";
+        // 💾 Renderização: Google Drive Global Storage
+        const elTxtPctDrive = document.getElementById("txt-pct-drive");
+        const elBarFillDrive = document.getElementById("bar-fill-drive");
+        const elLblValDrive = document.getElementById("lbl-val-drive");
+        
+        if (elTxtPctDrive) elTxtPctDrive.innerText = (resposta.telemetria.drivePercentual || 0) + "%";
+        if (elBarFillDrive) elBarFillDrive.style.width = (resposta.telemetria.drivePercentual || 0) + "%";
+        if (elLblValDrive) elLblValDrive.innerText = (resposta.telemetria.driveOcupadoGB || 0) + " GB";
+      } else {
+        // Fallback visual amigável enquanto você atualiza o código nas planilhas do Sheets
+        console.warn("⚠️ Telemetria não encontrada. Atualize o código do Apps Script desta UF.");
+        if(document.getElementById("txt-pct-grid")) document.getElementById("txt-pct-grid").innerText = "Aguardando .gs";
+        if(document.getElementById("txt-pct-email")) document.getElementById("txt-pct-email").innerText = "Aguardando .gs";
+        if(document.getElementById("txt-pct-drive")) document.getElementById("txt-pct-drive").innerText = "Aguardando .gs";
+      }
 
     } else {
       if(document.getElementById("adminKpiLatencia")) document.getElementById("adminKpiLatencia").innerText = "Erro";
@@ -2195,18 +2202,18 @@ function abrirPainelRestritoAdmin(event) {
     delete window[callbackAdminName];
   };
 
-  // Injeta dinamicamente o script de requisição JSONP no cabeçalho do documento
+  // Injeta dinamicamente a tag de requisição script
   const scriptTag = document.createElement("script");
   scriptTag.src = `${urlParaAdminPing}?action=obterMetricasEletricasAdmin&callback=${callbackAdminName}`;
   document.head.appendChild(scriptTag);
   
-  // Limpeza mecânica do nó após a carga
   scriptTag.onload = function() { document.head.removeChild(scriptTag); };
   scriptTag.onerror = function() { 
     if(document.getElementById("adminKpiLatencia")) document.getElementById("adminKpiLatencia").innerText = "Offline";
     if(document.getElementById("adminKpiStatus")) document.getElementById("adminKpiStatus").innerHTML = `<span style="color: #FF3B30; font-weight: 700;">Offline</span>`;
   };
 }
+
 
 
 	
