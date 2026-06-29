@@ -441,7 +441,7 @@
     
     <!-- Subtítulo / Versão do Painel (Texto Cinza e Discreto abaixo da logo) -->
     <p class="brand-subtitle" style="margin: 0; padding: 0; font-size: 0.875rem; color: #6E6E73; font-weight: 500; letter-spacing: 0.3px;">
-        PAINEL ADMINISTRATIVO v2906.5
+        PAINEL ADMINISTRATIVO v2906.6
     </p>
 
 </div>
@@ -2048,10 +2048,13 @@ function gerenciarTravaMutuaDatas() {
 /**
  * ENGINE MASTER: Abre o painel restrito disparando telemetria em tempo real
  */
+/**
+ * ENGINE MASTER: Abre o painel restrito disparando telemetria em tempo real
+ */
 function abrirPainelRestritoAdmin(event) {
   if (event) event.preventDefault();
   
-  // 🔧 CORREÇÃO 1: Garante a abertura imediata do modal na tela antes do ping assíncrono
+  // 🔧 FIX CIRÚRGICO 1: Abre o modal IMEDIATAMENTE antes de qualquer processamento assíncrono
   const modalAdmin = document.getElementById("modalPainelAdmin");
   if (modalAdmin) {
     modalAdmin.style.display = "flex";
@@ -2081,6 +2084,7 @@ function abrirPainelRestritoAdmin(event) {
         </div>
       `;
     });
+    
     containerDinamico.innerHTML = htmlEndpoints;
   }
   
@@ -2139,7 +2143,7 @@ function abrirPainelRestritoAdmin(event) {
   if(document.getElementById("adminKpiRequests")) document.getElementById("adminKpiRequests").innerText = "...";
 
   // =======================================================================
-  // 🎯 CALLBACK ASÍNCRONO COM TRAVAS DE SEGURANÇA ANTICRASH
+  // 🎯 CALLBACK ASÍNCRONO BLINDADO COM IDENTIFICAÇÃO CORRETA DE ID CAMELCASE
   // =======================================================================
   window[callbackAdminName] = function(resposta) {
     if (resposta && resposta.success) {
@@ -2158,41 +2162,27 @@ function abrirPainelRestritoAdmin(event) {
       if(document.getElementById("adminKpiOnline")) document.getElementById("adminKpiOnline").innerText = resposta.usuariosOnline || 1;
       if(document.getElementById("adminKpiStatus")) document.getElementById("adminKpiStatus").innerHTML = `<span style="color: #34C759; font-weight: 700;">100% OK</span>`;
       
-      // 🔧 CORREÇÃO 2: Valida se a propriedade 'telemetria' existe no payload retornado pelo Apps Script
-      if (resposta.telemetria) {
-        // 📊 Renderização: Google Sheets Density
-        const celulasMilhoes = (resposta.telemetria.gridCelulasUsadas / 1000000).toFixed(2);
-        const elTxtPctGrid = document.getElementById("txt-pct-grid");
-        const elBarFillGrid = document.getElementById("bar-fill-grid");
-        const elLblValGrid = document.getElementById("lbl-val-grid");
-        
-        if (elTxtPctGrid) elTxtPctGrid.innerText = (resposta.telemetria.gridPercentual || 0) + "%";
-        if (elBarFillGrid) elBarFillGrid.style.width = (resposta.telemetria.gridPercentual || 0) + "%";
-        if (elLblValGrid) elLblValGrid.innerText = celulasMilhoes + " M";
+      // 🛡️ TRY/CATCH BLOCK: Evita que o painel trave caso as barras HTML ainda não estejam coladas no arquivo
+      try {
+        if (resposta.telemetria) {
+          // 📊 Renderização: Google Sheets Density (Mapeado para IDs Corretos do seu Painel)
+          const celulasMilhoes = (resposta.telemetria.gridCelulasUsadas / 1000000).toFixed(2);
+          if (document.getElementById("txtPctGrid")) document.getElementById("txtPctGrid").innerText = (resposta.telemetria.gridPercentual || 0) + "%";
+          if (document.getElementById("barFillGrid")) document.getElementById("barFillGrid").style.width = (resposta.telemetria.gridPercentual || 0) + "%";
+          if (document.getElementById("lblValGrid")) document.getElementById("lblValGrid").innerText = celulasMilhoes + " M";
 
-        // 📧 Renderização: Gmail Quota Limits
-        const elTxtPctEmail = document.getElementById("txt-pct-email");
-        const elBarFillEmail = document.getElementById("bar-fill-email");
-        const elLblValEmail = document.getElementById("lbl-val-email");
-        
-        if (elTxtPctEmail) elTxtPctEmail.innerText = (resposta.telemetria.emailsPercentualUsado || 0) + "%";
-        if (elBarFillEmail) elBarFillEmail.style.width = (resposta.telemetria.emailsPercentualUsado || 0) + "%";
-        if (elLblValEmail) elLblValEmail.innerText = resposta.telemetria.emailsEnviados || 0;
+          // 📧 Renderização: Gmail Quota Limits
+          if (document.getElementById("txtPctEmail")) document.getElementById("txtPctEmail").innerText = (resposta.telemetria.emailsPercentualUsado || 0) + "%";
+          if (document.getElementById("barFillEmail")) document.getElementById("barFillEmail").style.width = (resposta.telemetria.emailsPercentualUsado || 0) + "%";
+          if (document.getElementById("lblValEmail")) document.getElementById("lblValEmail").innerText = resposta.telemetria.emailsEnviados || 0;
 
-        // 💾 Renderização: Google Drive Global Storage
-        const elTxtPctDrive = document.getElementById("txt-pct-drive");
-        const elBarFillDrive = document.getElementById("bar-fill-drive");
-        const elLblValDrive = document.getElementById("lbl-val-drive");
-        
-        if (elTxtPctDrive) elTxtPctDrive.innerText = (resposta.telemetria.drivePercentual || 0) + "%";
-        if (elBarFillDrive) elBarFillDrive.style.width = (resposta.telemetria.drivePercentual || 0) + "%";
-        if (elLblValDrive) elLblValDrive.innerText = (resposta.telemetria.driveOcupadoGB || 0) + " GB";
-      } else {
-        // Fallback visual amigável enquanto você atualiza o código nas planilhas do Sheets
-        console.warn("⚠️ Telemetria não encontrada. Atualize o código do Apps Script desta UF.");
-        if(document.getElementById("txt-pct-grid")) document.getElementById("txt-pct-grid").innerText = "Aguardando .gs";
-        if(document.getElementById("txt-pct-email")) document.getElementById("txt-pct-email").innerText = "Aguardando .gs";
-        if(document.getElementById("txt-pct-drive")) document.getElementById("txt-pct-drive").innerText = "Aguardando .gs";
+          // 💾 Renderização: Google Drive Global Storage
+          if (document.getElementById("txtPctDrive")) document.getElementById("txtPctDrive").innerText = (resposta.telemetria.drivePercentual || 0) + "%";
+          if (document.getElementById("barFillDrive")) document.getElementById("barFillDrive").style.width = (resposta.telemetria.drivePercentual || 0) + "%";
+          if (document.getElementById("lblValDrive")) document.getElementById("lblValDrive").innerText = (resposta.telemetria.driveOcupadoGB || 0) + " GB";
+        }
+      } catch (errBarra) {
+        console.warn("⚠️ Elementos visuais das barras ainda não instanciados no HTML: " + errBarra);
       }
 
     } else {
@@ -2202,20 +2192,18 @@ function abrirPainelRestritoAdmin(event) {
     delete window[callbackAdminName];
   };
 
-  // Injeta dinamicamente a tag de requisição script
+  // Injeta dinamicamente a tag de requisição script para o bypass de CORS
   const scriptTag = document.createElement("script");
   scriptTag.src = `${urlParaAdminPing}?action=obterMetricasEletricasAdmin&callback=${callbackAdminName}`;
   document.head.appendChild(scriptTag);
   
+  // 🔧 FIX CIRÚRGICO 2: Correção da quebra de linha de sintaxe do scriptTag antigo
   scriptTag.onload = function() { document.head.removeChild(scriptTag); };
   scriptTag.onerror = function() { 
     if(document.getElementById("adminKpiLatencia")) document.getElementById("adminKpiLatencia").innerText = "Offline";
     if(document.getElementById("adminKpiStatus")) document.getElementById("adminKpiStatus").innerHTML = `<span style="color: #FF3B30; font-weight: 700;">Offline</span>`;
   };
 }
-
-
-
 	
 	/**
 	 * FECHAR O MODAL RESTRITO
