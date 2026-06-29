@@ -441,7 +441,7 @@
     
     <!-- Subtítulo / Versão do Painel (Texto Cinza e Discreto abaixo da logo) -->
     <p class="brand-subtitle" style="margin: 0; padding: 0; font-size: 0.875rem; color: #6E6E73; font-weight: 500; letter-spacing: 0.3px;">
-        PAINEL ADMINISTRATIVO v2906.1
+        PAINEL ADMINISTRATIVO v2906.2
     </p>
 
 </div>
@@ -2045,15 +2045,17 @@ function gerenciarTravaMutuaDatas() {
 /**
  * ENGINE MASTER: Abre o painel restrito disparando telemetria em tempo real
  */
+/**
+ * ENGINE MASTER: Abre o painel restrito disparando telemetria em tempo real
+ */
 function abrirPainelRestritoAdmin(event) {
   if (event) event.preventDefault();
   
-  console.log("🔓 Torre de Controle acionada pelo operador.");
+  console.log("🔓 Torre de Controle operacional acionada pelo operador.");
   
-  // 🎯 GATILHO COMPORTAMENTAL: Abre o modal visual na tela imediatamente antes de processar
+  // 🎯 GATILHO VISUAL CRÍTICO: Abre o modal IMEDIATAMENTE no topo absoluto do DOM
   const modalAdmin = document.getElementById("modalPainelAdmin");
   if (modalAdmin) {
-    // Aplica propriedades absolutas na marra via JS para garantir o topo do DOM sem quebras
     modalAdmin.style.position = "fixed";
     modalAdmin.style.top = "0";
     modalAdmin.style.left = "0";
@@ -2066,11 +2068,11 @@ function abrirPainelRestritoAdmin(event) {
     modalAdmin.style.flexDirection = "column";
     modalAdmin.style.display = "flex";
   } else {
-    console.error("❌ Erro: O elemento 'modalPainelAdmin' não foi localizado no HTML.");
+    console.error("❌ Abortado: O contêiner 'modalPainelAdmin' não existe no HTML.");
     return;
   }
 
-  // Envolvemos a telemetria em isolamento de escopo para blindar o display:flex aberto acima
+  // Envolve todo o tráfego lógico em isolamento de escopo para blindar a abertura do modal acima
   try {
     // =======================================================================
     // 🚀 GATILHO DE RENDERIZAÇÃO DINÂMICA DE ENDPOINTS (MÁXIMA ESCALA 27 UFs)
@@ -2122,7 +2124,7 @@ function abrirPainelRestritoAdmin(event) {
     const seletorUfComponente = document.getElementById("filtroUF");
     const ufRealSelecionada = seletorUfComponente ? seletorUfComponente.value.toUpperCase().trim() : "";
 
-    // Caminho Dinâmico por UF selecionada no painel principal
+    // Roteamento direto puxando a URL correta do seu dicionário ativo
     if (ufRealSelecionada !== "" && typeof REGIONAIS_WEB_APPS !== "undefined") {
       if (REGIONAIS_WEB_APPS[ufRealSelecionada]) {
         urlParaAdminPing = REGIONAIS_WEB_APPS[ufRealSelecionada];
@@ -2130,7 +2132,7 @@ function abrirPainelRestritoAdmin(event) {
       }
     }
     
-    // Fallback Inteligente em Lote caso o painel esteja em Visão Geral
+    // Fallback inteligente se aberto em modo global
     if (!urlParaAdminPing || urlParaAdminPing === "") {
       if (typeof REGIONAIS_WEB_APPS !== "undefined") {
         const chavesUfsAtivas = Object.keys(REGIONAIS_WEB_APPS);
@@ -2147,7 +2149,7 @@ function abrirPainelRestritoAdmin(event) {
       return;
     }
 
-    // Configuração dos contadores para estado de carregamento
+    // Setup visual inicial do cronômetro de resposta
     const tempoInicioCronometro = Date.now();
     const callbackAdminName = "cbAdminTelemetria_" + Date.now();
     
@@ -2156,11 +2158,11 @@ function abrirPainelRestritoAdmin(event) {
     if(document.getElementById("lblEndpointAtivo")) document.getElementById("lblEndpointAtivo").innerText = "Aguardando Resposta...";
 
     // =======================================================================
-    // 🎯 RENDERIZAÇÃO DO FILTRO DE MÁSCARAS DO GOOGLE SERVICES (CALLBACK)
+    // 🎯 PROCESSAMENTO DA RESPOSTA DO SERVIDOR (CALLBACK ASÍNCRONO)
     // =======================================================================
     window[callbackAdminName] = function(resposta) {
       if (resposta && resposta.success) {
-        // Cálculo preciso de latência de transporte
+        // Cálculo em tempo real da latência da rede regional
         const latenciaCalculada = ((Date.now() - tempoInicioCronometro) / 1000).toFixed(2);
         const latenciaNum = parseFloat(latenciaCalculada);
         
@@ -2176,22 +2178,22 @@ function abrirPainelRestritoAdmin(event) {
         if(document.getElementById("adminKpiStatus")) document.getElementById("adminKpiStatus").innerHTML = `<span style="color: #34C759; font-weight: 700;">100% OK</span>`;
         if(document.getElementById("lblEndpointAtivo")) document.getElementById("lblEndpointAtivo").innerText = "Clusters Sincronizados";
         
-        // Renderização dinâmica das barras de carregamento adicionadas no Passo 1
+        // 📊 Alimentação Fluída das Novas Barras Roxas (Nu Style)
         if (resposta.telemetria) {
           const celulasMilhoes = (resposta.telemetria.gridCelulasUsadas / 1000000).toFixed(2);
-          if (document.getElementById("txtPctGrid")) document.getElementById("txtPctGrid").innerText = (resposta.telemetria.gridPercentual || 0) + "%";
+          if (document.getElementById("txtPctGrid")) document.getElementById("txtPctGrid").innerText = (resposta.telemetria.gridPercentual || "0.00") + "%";
           if (document.getElementById("barFillGrid")) document.getElementById("barFillGrid").style.width = (resposta.telemetria.gridPercentual || 0) + "%";
           if (document.getElementById("lblValGrid")) document.getElementById("lblValGrid").innerText = celulasMilhoes + " M";
 
-          if (document.getElementById("txtPctEmail")) document.getElementById("txtPctEmail").innerText = (resposta.telemetria.emailsPercentualUsado || 0) + "%";
+          if (document.getElementById("txtPctEmail")) document.getElementById("txtPctEmail").innerText = (resposta.telemetria.emailsPercentualUsado || "0.0") + "%";
           if (document.getElementById("barFillEmail")) document.getElementById("barFillEmail").style.width = (resposta.telemetria.emailsPercentualUsado || 0) + "%";
           if (document.getElementById("lblValEmail")) document.getElementById("lblValEmail").innerText = resposta.telemetria.emailsEnviados || 0;
 
-          if (document.getElementById("txtPctDrive")) document.getElementById("txtPctDrive").innerText = (resposta.telemetria.drivePercentual || 0) + "%";
+          if (document.getElementById("txtPctDrive")) document.getElementById("txtPctDrive").innerText = (resposta.telemetria.drivePercentual || "0.0") + "%";
           if (document.getElementById("barFillDrive")) document.getElementById("barFillDrive").style.width = (resposta.telemetria.drivePercentual || 0) + "%";
-          if (document.getElementById("lblValDrive")) document.getElementById("lblValDrive").innerText = (resposta.telemetria.driveOcupadoGB || 0) + " GB";
+          if (document.getElementById("lblValDrive")) document.getElementById("lblValDrive").innerText = (resposta.telemetria.driveOcupadoGB || "0.00") + " GB";
         } else {
-          // Fallback amigável enquanto você realiza o update dos scripts .gs nas planilhas
+          // Fallback passivo enquanto os backends (.gs) das planilhas são atualizados
           if (document.getElementById("txtPctGrid")) document.getElementById("txtPctGrid").innerText = "Aguardando .gs";
           if (document.getElementById("txtPctEmail")) document.getElementById("txtPctEmail").innerText = "Aguardando .gs";
           if (document.getElementById("txtPctDrive")) document.getElementById("txtPctDrive").innerText = "Aguardando .gs";
@@ -2203,22 +2205,22 @@ function abrirPainelRestritoAdmin(event) {
       delete window[callbackAdminName];
     };
 
-    // Injeção da Tag Script (Bypass CORS)
+    // Injeção limpa no cabeçalho do documento (Bypass de CORS)
     const scriptTag = document.createElement("script");
     scriptTag.src = `${urlParaAdminPing}?action=obterMetricasEletricasAdmin&callback=${callbackAdminName}`;
     document.head.appendChild(scriptTag);
     
-    // Higienização mecânica do DOM
+    // Higienização completa do DOM
     scriptTag.onload = function() { document.head.removeChild(scriptTag); };
     scriptTag.onerror = function() { 
       if(document.getElementById("adminKpiLatencia")) document.getElementById("adminKpiLatencia").innerText = "Offline";
-      if(document.getElementById("adminKpiStatus")) 
-	  document.getElementById("adminKpiStatus").innerHTML = <span style="color: #FF3B30; font-weight: 700;">Offline</span>;
-	  };
-	  } catch (errGlobal) {
-	  console.warn("⚠️ Processamento interno isolado pelo anti-crash: " + errGlobal);
-  	 }
-    }
+      if(document.getElementById("adminKpiStatus")) document.getElementById("adminKpiStatus").innerHTML = `<span style="color: #FF3B30; font-weight: 700;">Offline</span>`;
+    };
+
+  } catch (errGlobal) {
+	console.warn("⚠️ Processamento de barramento interceptado pelo anti-crash: " + errGlobal);
+  }
+}
 	
 	/**
 	 * FECHAR O MODAL RESTRITO
