@@ -441,7 +441,7 @@
     
     <!-- Subtítulo / Versão do Painel (Texto Cinza e Discreto abaixo da logo) -->
     <p class="brand-subtitle" style="margin: 0; padding: 0; font-size: 0.875rem; color: #6E6E73; font-weight: 500; letter-spacing: 0.3px;">
-        PAINEL ADMINISTRATIVO v2906.6
+        PAINEL ADMINISTRATIVO v2906.1
     </p>
 
 </div>
@@ -2045,165 +2045,180 @@ function gerenciarTravaMutuaDatas() {
 /**
  * ENGINE MASTER: Abre o painel restrito disparando telemetria em tempo real
  */
-/**
- * ENGINE MASTER: Abre o painel restrito disparando telemetria em tempo real
- */
-/**
- * ENGINE MASTER: Abre o painel restrito disparando telemetria em tempo real
- */
 function abrirPainelRestritoAdmin(event) {
   if (event) event.preventDefault();
   
-  // 🔧 FIX CIRÚRGICO 1: Abre o modal IMEDIATAMENTE antes de qualquer processamento assíncrono
+  console.log("🔓 Torre de Controle acionada pelo operador.");
+  
+  // 🎯 GATILHO COMPORTAMENTAL: Abre o modal visual na tela imediatamente antes de processar
   const modalAdmin = document.getElementById("modalPainelAdmin");
   if (modalAdmin) {
+    // Aplica propriedades absolutas na marra via JS para garantir o topo do DOM sem quebras
+    modalAdmin.style.position = "fixed";
+    modalAdmin.style.top = "0";
+    modalAdmin.style.left = "0";
+    modalAdmin.style.width = "100vw";
+    modalAdmin.style.height = "100vh";
+    modalAdmin.style.backgroundColor = "rgba(244, 244, 247, 0.98)";
+    modalAdmin.style.zIndex = "99999";
+    modalAdmin.style.padding = "2rem";
+    modalAdmin.style.overflowY = "auto";
+    modalAdmin.style.flexDirection = "column";
     modalAdmin.style.display = "flex";
-  }
-
-  // =======================================================================
-  // 🚀 GATILHO DE RENDERIZAÇÃO DINÂMICA DE ENDPOINTS (MÁXIMA ESCALA 27 UFs)
-  // =======================================================================
-  const containerDinamico = document.getElementById("containerEndpointsDinamicosAdmin");
-  if (containerDinamico && typeof REGIONAIS_WEB_APPS !== "undefined") {
-    let htmlEndpoints = "";
-    
-    const nomesExtensoUFs = {
-      "PR": "PR/PRW1", "RS": "RS/RSW1", "SC": "SC/SCW1",
-      "SP": "SP/SPW1", "SP1": "SP/DSP1", "RJ": "RJ/RJW5", "MG": "MG/MNW5",
-      "AL": "AL/ALW1", "BA": "BA/BAW1", "CE": "CE/CEW1", "ES": "ES/ESW1",
-      "PB": "PB/PBW1", "PE": "PE/PEW1", "PI": "PI/PIW1", "RN": "RN/RNW1",
-      "SE": "SE/SEW1"
-    };
-    
-    Object.keys(REGIONAIS_WEB_APPS).forEach(function(ufChave) {
-      const nomeEstado = nomesExtensoUFs[ufChave] || `Regional ${ufChave}`;
-      htmlEndpoints += `
-        <div class="diagnostico-item">
-          <span>Endpoint Ativo ${ufChave} (${nomeEstado})</span>
-          <span class="txt-link-admin" style="color: #34C759; font-weight: 600;">Conectado (V8 Engine)</span>
-        </div>
-      `;
-    });
-    
-    containerDinamico.innerHTML = htmlEndpoints;
-  }
-  
-  // Alimenta listagem local com o operador conectado
-  const corpoOnline = document.getElementById("listaUsuariosOnlineAdmin");
-  const elNome = document.getElementById("nomeUsuarioDoca");
-  const nomeUsuarioLogado = elNome ? elNome.innerText : "Operador Ativo";
-  const ufSelecionada = document.getElementById("filtroUF") ? document.getElementById("filtroUF").value : "";
-  
-  if (corpoOnline) {
-    corpoOnline.innerHTML = `
-      <tr>
-        <td style="font-weight: bold; color: #8A05BE;">${nomeUsuarioLogado} (Você)</td>
-        <td><span class="badge-uf-admin" style="background: #f2f2f7; padding: 4px 8px; border-radius: 4px; font-weight: bold;">${ufSelecionada !== "" ? ufSelecionada : "VISÃO GERAL"}</span></td>
-        <td>Agora Mesmo</td>
-      </tr>
-    `;
-  }
-
-  // =======================================================================
-  // 🌐 MOTOR DINÂMICO ESCALÁVEL DE INFRAESTRUTURA NACIONAL (27 UFs)
-  // =======================================================================
-  let urlParaAdminPing = "";
-  const seletorUfComponente = document.getElementById("filtroUF");
-  const ufRealSelecionada = seletorUfComponente ? seletorUfComponente.value.toUpperCase().trim() : "";
-
-  if (ufRealSelecionada !== "" && typeof REGIONAIS_WEB_APPS !== "undefined") {
-    if (REGIONAIS_WEB_APPS[ufRealSelecionada]) {
-      urlParaAdminPing = REGIONAIS_WEB_APPS[ufRealSelecionada];
-      console.log(`[TELEMETRIA] Direcionando ping dinamico para o cluster: ${ufRealSelecionada}`);
-    }
-  }
-  
-  // Fallback Inteligente
-  if (!urlParaAdminPing || urlParaAdminPing === "") {
-    if (typeof REGIONAIS_WEB_APPS !== "undefined") {
-      const chavesUfsAtivas = Object.keys(REGIONAIS_WEB_APPS);
-      if (chavesUfsAtivas.length > 0) {
-        urlParaAdminPing = REGIONAIS_WEB_APPS[chavesUfsAtivas[0]];
-        console.log(`[TELEMETRIA] Modo Geral ativo. Utilizando o cluster mestre de teste: ${chavesUfsAtivas[0]}`);
-      }
-    }
-  }
-
-  if (!urlParaAdminPing || urlParaAdminPing === "") {
-    if(document.getElementById("adminKpiLatencia")) document.getElementById("adminKpiLatencia").innerText = "Sem Link";
-    if(document.getElementById("adminKpiRequests")) document.getElementById("adminKpiRequests").innerText = "0";
-    if(document.getElementById("adminKpiStatus")) document.getElementById("adminKpiStatus").innerHTML = `<span style="color: #FF3B30; font-weight: 700;">Erro Config</span>`;
+  } else {
+    console.error("❌ Erro: O elemento 'modalPainelAdmin' não foi localizado no HTML.");
     return;
   }
 
-  const tempoInicioCronometro = Date.now();
-  const callbackAdminName = "cbAdminTelemetria_" + Date.now();
-  
-  if(document.getElementById("adminKpiLatencia")) document.getElementById("adminKpiLatencia").innerText = "Calculando...";
-  if(document.getElementById("adminKpiRequests")) document.getElementById("adminKpiRequests").innerText = "...";
+  // Envolvemos a telemetria em isolamento de escopo para blindar o display:flex aberto acima
+  try {
+    // =======================================================================
+    // 🚀 GATILHO DE RENDERIZAÇÃO DINÂMICA DE ENDPOINTS (MÁXIMA ESCALA 27 UFs)
+    // =======================================================================
+    const containerDinamico = document.getElementById("containerEndpointsDinamicosAdmin");
+    if (containerDinamico && typeof REGIONAIS_WEB_APPS !== "undefined") {
+      let htmlEndpoints = "";
+      
+      const nomesExtensoUFs = {
+        "PR": "PR/PRW1", "RS": "RS/RSW1", "SC": "SC/SCW1",
+        "SP": "SP/SPW1", "SP1": "SP/DSP1", "RJ": "RJ/RJW5", "MG": "MG/MNW5",
+        "AL": "AL/ALW1", "BA": "BA/BAW1", "CE": "CE/CEW1", "ES": "ES/ESW1",
+        "PB": "PB/PBW1", "PE": "PE/PEW1", "PI": "PI/PIW1", "RN": "RN/RNW1",
+        "SE": "SE/SEW1"
+      };
+      
+      Object.keys(REGIONAIS_WEB_APPS).forEach(function(ufChave) {
+        const nomeEstado = nomesExtensoUFs[ufChave] || `Regional ${ufChave}`;
+        htmlEndpoints += `
+          <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px dashed #E5E5EA;">
+            <span>Endpoint Ativo ${ufChave} (${nomeEstado})</span>
+            <span style="color: #34C759; font-weight: 600;">Conectado (V8 Engine)</span>
+          </div>
+        `;
+      });
+      containerDinamico.innerHTML = htmlEndpoints;
+    }
+    
+    // Alimenta listagem local com o operador conectado
+    const corpoOnline = document.getElementById("listaUsuariosOnlineAdmin");
+    const elNome = document.getElementById("nomeUsuarioDoca");
+    const nomeUsuarioLogado = elNome ? elNome.innerText : "Operador Ativo";
+    const ufSelecionada = document.getElementById("filtroUF") ? document.getElementById("filtroUF").value : "";
+    
+    if (corpoOnline) {
+      corpoOnline.innerHTML = `
+        <tr>
+          <td style="font-weight: bold; color: #8A05BE; padding: 6px 0;">${nomeUsuarioLogado} (Você)</td>
+          <td><span class="badge-uf-admin" style="background: #f2f2f7; padding: 4px 8px; border-radius: 4px; font-weight: bold;">${ufSelecionada !== "" ? ufSelecionada : "VISÃO GERAL"}</span></td>
+          <td>Agora Mesmo</td>
+        </tr>
+      `;
+    }
 
-  // =======================================================================
-  // 🎯 CALLBACK ASÍNCRONO BLINDADO COM IDENTIFICAÇÃO CORRETA DE ID CAMELCASE
-  // =======================================================================
-  window[callbackAdminName] = function(resposta) {
-    if (resposta && resposta.success) {
-      const latenciaCalculada = ((Date.now() - tempoInicioCronometro) / 1000).toFixed(2);
-      const latenciaNum = parseFloat(latenciaCalculada);
-      
-      const elLatencia = document.getElementById("adminKpiLatencia");
-      if (elLatencia) {
-        elLatencia.innerText = latenciaCalculada + "s";
-        if (latenciaNum <= 2.0) elLatencia.style.color = "#34C759";
-        else if (latenciaNum <= 4.0) elLatencia.style.color = "#FF9500";
-        else elLatencia.style.color = "#FF3B30";
+    // =======================================================================
+    // 🌐 MOTOR DINÂMICO ESCALÁVEL DE INFRAESTRUTURA NACIONAL (27 UFs)
+    // =======================================================================
+    let urlParaAdminPing = "";
+    const seletorUfComponente = document.getElementById("filtroUF");
+    const ufRealSelecionada = seletorUfComponente ? seletorUfComponente.value.toUpperCase().trim() : "";
+
+    // Caminho Dinâmico por UF selecionada no painel principal
+    if (ufRealSelecionada !== "" && typeof REGIONAIS_WEB_APPS !== "undefined") {
+      if (REGIONAIS_WEB_APPS[ufRealSelecionada]) {
+        urlParaAdminPing = REGIONAIS_WEB_APPS[ufRealSelecionada];
+        console.log(`[TELEMETRIA] Direcionando ping dinâmico para o cluster: ${ufRealSelecionada}`);
       }
-      
-      if(document.getElementById("adminKpiRequests")) document.getElementById("adminKpiRequests").innerText = resposta.requisicoesHoje || 0;
-      if(document.getElementById("adminKpiOnline")) document.getElementById("adminKpiOnline").innerText = resposta.usuariosOnline || 1;
-      if(document.getElementById("adminKpiStatus")) document.getElementById("adminKpiStatus").innerHTML = `<span style="color: #34C759; font-weight: 700;">100% OK</span>`;
-      
-      // 🛡️ TRY/CATCH BLOCK: Evita que o painel trave caso as barras HTML ainda não estejam coladas no arquivo
-      try {
+    }
+    
+    // Fallback Inteligente em Lote caso o painel esteja em Visão Geral
+    if (!urlParaAdminPing || urlParaAdminPing === "") {
+      if (typeof REGIONAIS_WEB_APPS !== "undefined") {
+        const chavesUfsAtivas = Object.keys(REGIONAIS_WEB_APPS);
+        if (chavesUfsAtivas.length > 0) {
+          urlParaAdminPing = REGIONAIS_WEB_APPS[chavesUfsAtivas[0]];
+          console.log(`[TELEMETRIA] Modo Geral ativo. Cluster mestre adotado: ${chavesUfsAtivas[0]}`);
+        }
+      }
+    }
+
+    if (!urlParaAdminPing || urlParaAdminPing === "") {
+      if(document.getElementById("adminKpiLatencia")) document.getElementById("adminKpiLatencia").innerText = "Sem Link";
+      if(document.getElementById("adminKpiStatus")) document.getElementById("adminKpiStatus").innerText = "Erro Rota";
+      return;
+    }
+
+    // Configuração dos contadores para estado de carregamento
+    const tempoInicioCronometro = Date.now();
+    const callbackAdminName = "cbAdminTelemetria_" + Date.now();
+    
+    if(document.getElementById("adminKpiLatencia")) document.getElementById("adminKpiLatencia").innerText = "Calculando...";
+    if(document.getElementById("adminKpiRequests")) document.getElementById("adminKpiRequests").innerText = "...";
+    if(document.getElementById("lblEndpointAtivo")) document.getElementById("lblEndpointAtivo").innerText = "Aguardando Resposta...";
+
+    // =======================================================================
+    // 🎯 RENDERIZAÇÃO DO FILTRO DE MÁSCARAS DO GOOGLE SERVICES (CALLBACK)
+    // =======================================================================
+    window[callbackAdminName] = function(resposta) {
+      if (resposta && resposta.success) {
+        // Cálculo preciso de latência de transporte
+        const latenciaCalculada = ((Date.now() - tempoInicioCronometro) / 1000).toFixed(2);
+        const latenciaNum = parseFloat(latenciaCalculada);
+        
+        const elLatencia = document.getElementById("adminKpiLatencia");
+        if (elLatencia) {
+          elLatencia.innerText = latenciaCalculada + "s";
+          if (latenciaNum <= 2.0) elLatencia.style.color = "#34C759";
+          else if (latenciaNum <= 4.0) elLatencia.style.color = "#FF9500";
+          else elLatencia.style.color = "#FF3B30";
+        }
+        
+        if(document.getElementById("adminKpiRequests")) document.getElementById("adminKpiRequests").innerText = resposta.requisicoesHoje || 0;
+        if(document.getElementById("adminKpiStatus")) document.getElementById("adminKpiStatus").innerHTML = `<span style="color: #34C759; font-weight: 700;">100% OK</span>`;
+        if(document.getElementById("lblEndpointAtivo")) document.getElementById("lblEndpointAtivo").innerText = "Clusters Sincronizados";
+        
+        // Renderização dinâmica das barras de carregamento adicionadas no Passo 1
         if (resposta.telemetria) {
-          // 📊 Renderização: Google Sheets Density (Mapeado para IDs Corretos do seu Painel)
           const celulasMilhoes = (resposta.telemetria.gridCelulasUsadas / 1000000).toFixed(2);
           if (document.getElementById("txtPctGrid")) document.getElementById("txtPctGrid").innerText = (resposta.telemetria.gridPercentual || 0) + "%";
           if (document.getElementById("barFillGrid")) document.getElementById("barFillGrid").style.width = (resposta.telemetria.gridPercentual || 0) + "%";
           if (document.getElementById("lblValGrid")) document.getElementById("lblValGrid").innerText = celulasMilhoes + " M";
 
-          // 📧 Renderização: Gmail Quota Limits
           if (document.getElementById("txtPctEmail")) document.getElementById("txtPctEmail").innerText = (resposta.telemetria.emailsPercentualUsado || 0) + "%";
           if (document.getElementById("barFillEmail")) document.getElementById("barFillEmail").style.width = (resposta.telemetria.emailsPercentualUsado || 0) + "%";
           if (document.getElementById("lblValEmail")) document.getElementById("lblValEmail").innerText = resposta.telemetria.emailsEnviados || 0;
 
-          // 💾 Renderização: Google Drive Global Storage
           if (document.getElementById("txtPctDrive")) document.getElementById("txtPctDrive").innerText = (resposta.telemetria.drivePercentual || 0) + "%";
           if (document.getElementById("barFillDrive")) document.getElementById("barFillDrive").style.width = (resposta.telemetria.drivePercentual || 0) + "%";
           if (document.getElementById("lblValDrive")) document.getElementById("lblValDrive").innerText = (resposta.telemetria.driveOcupadoGB || 0) + " GB";
+        } else {
+          // Fallback amigável enquanto você realiza o update dos scripts .gs nas planilhas
+          if (document.getElementById("txtPctGrid")) document.getElementById("txtPctGrid").innerText = "Aguardando .gs";
+          if (document.getElementById("txtPctEmail")) document.getElementById("txtPctEmail").innerText = "Aguardando .gs";
+          if (document.getElementById("txtPctDrive")) document.getElementById("txtPctDrive").innerText = "Aguardando .gs";
         }
-      } catch (errBarra) {
-        console.warn("⚠️ Elementos visuais das barras ainda não instanciados no HTML: " + errBarra);
+      } else {
+        if(document.getElementById("adminKpiLatencia")) document.getElementById("adminKpiLatencia").innerText = "Erro";
+        if(document.getElementById("adminKpiStatus")) document.getElementById("adminKpiStatus").innerHTML = `<span style="color: #FF3B30; font-weight: 700;">Falha JSONP</span>`;
       }
+      delete window[callbackAdminName];
+    };
 
-    } else {
-      if(document.getElementById("adminKpiLatencia")) document.getElementById("adminKpiLatencia").innerText = "Erro";
-      if(document.getElementById("adminKpiStatus")) document.getElementById("adminKpiStatus").innerHTML = `<span style="color: #FF3B30; font-weight: 700;">Falha JSONP</span>`;
+    // Injeção da Tag Script (Bypass CORS)
+    const scriptTag = document.createElement("script");
+    scriptTag.src = `${urlParaAdminPing}?action=obterMetricasEletricasAdmin&callback=${callbackAdminName}`;
+    document.head.appendChild(scriptTag);
+    
+    // Higienização mecânica do DOM
+    scriptTag.onload = function() { document.head.removeChild(scriptTag); };
+    scriptTag.onerror = function() { 
+      if(document.getElementById("adminKpiLatencia")) document.getElementById("adminKpiLatencia").innerText = "Offline";
+      if(document.getElementById("adminKpiStatus")) 
+	  document.getElementById("adminKpiStatus").innerHTML = <span style="color: #FF3B30; font-weight: 700;">Offline</span>;
+	  };
+	  } catch (errGlobal) {
+	  console.warn("⚠️ Processamento interno isolado pelo anti-crash: " + errGlobal);
+  	 }
     }
-    delete window[callbackAdminName];
-  };
-
-  // Injeta dinamicamente a tag de requisição script para o bypass de CORS
-  const scriptTag = document.createElement("script");
-  scriptTag.src = `${urlParaAdminPing}?action=obterMetricasEletricasAdmin&callback=${callbackAdminName}`;
-  document.head.appendChild(scriptTag);
-  
-  // 🔧 FIX CIRÚRGICO 2: Correção da quebra de linha de sintaxe do scriptTag antigo
-  scriptTag.onload = function() { document.head.removeChild(scriptTag); };
-  scriptTag.onerror = function() { 
-    if(document.getElementById("adminKpiLatencia")) document.getElementById("adminKpiLatencia").innerText = "Offline";
-    if(document.getElementById("adminKpiStatus")) document.getElementById("adminKpiStatus").innerHTML = `<span style="color: #FF3B30; font-weight: 700;">Offline</span>`;
-  };
-}
 	
 	/**
 	 * FECHAR O MODAL RESTRITO
@@ -2336,87 +2351,6 @@ function compilarRelatorioMultiAbasExcel(dadosRomaneios, dadosDetalhado) {
   }
 }
 
-	// =======================================================================
-// 🔌 INTERFACE ASÍNCRONA: DISPARO ROTEÁVEL POR REGIONAL E ATUALIZAÇÃO
-// =======================================================================
-
-function dispararConsultaTelemetriaAdmin() {
-  // 🎯 CAPTURA DINÂMICA: Coleta o valor ativo no select de UFs
-  var selectUF = document.getElementById("filtroUF");
-  var ufSelecionada = selectUF ? selectUF.value.toUpperCase().trim() : "";
-  
-  // Roteamento direto baseado na sua constante homologada 'REGIONAIS_WEB_APPS'
-  var baseUrlWebApp = REGIONAIS_WEB_APPS[ufSelecionada];
-  
-  if (!baseUrlWebApp) {
-    console.error("❌ Erro de Roteamento: Regional '" + ufSelecionada + "' ausente no dicionário.");
-    return;
-  }
-  
-  var nomeCallbackGlobal = "processarRetornoTelemetriaAdmin";
-  var urlFinalRequisicao = baseUrlWebApp + 
-                           "?action=obterMetricasEletricasAdmin" + 
-                           "&callback=" + nomeCallbackGlobal + 
-                           "&_ts=" + new Date().getTime(); // Anti-cache string
-                           
-  // Limpeza de cache no DOM (Evita vazamento de memória RAM por Script Tags soltas)
-  var scriptAntigo = document.getElementById("jsonp-telemetry-trigger");
-  if (scriptAntigo) scriptAntigo.parentNode.removeChild(scriptAntigo);
-  
-  // Injeção limpa no barramento (JSONP Bypass)
-  var novoScriptTag = document.createElement("script");
-  novoScriptTag.type = "text/javascript";
-  novoScriptTag.id = "jsonp-telemetry-trigger";
-  novoScriptTag.src = urlFinalRequisicao;
-  document.getElementsByTagName("head")[0].appendChild(novoScriptTag);
-}
-
-// CALLBACK DE RENDERIZAÇÃO: Trata o payload e anima as barras de progresso
-function processarRetornoTelemetriaAdmin(resposta) {
-  if (!resposta.success) {
-    console.error("Erro no barramento de telemetria: " + resposta.error);
-    return;
-  }
-
-  // 1. Atualização dos Blocos Numéricos do Grid Superior
-  document.getElementById("adm-kpi-requisicoes").innerText = resposta.requisicoesHoje;
-  document.getElementById("adm-kpi-latencia").innerText = resposta.latenciaMedia;
-  document.getElementById("adm-kpi-status").innerText = resposta.statusCluster;
-
-  // 2. Renderização Fluída: Google Sheets Density
-  var celulasConvertidasMilhoes = (resposta.telemetria.gridCelulasUsadas / 1000000).toFixed(2);
-  document.getElementById("lbl-val-grid").innerText = celulasConvertidasMilhoes + " M";
-  document.getElementById("txt-pct-grid").innerText = resposta.telemetria.gridPercentual + "%";
-  document.getElementById("bar-fill-grid").style.width = resposta.telemetria.gridPercentual + "%";
-
-  // 3. Renderização Fluída: Gmail Quota Limits
-  document.getElementById("lbl-val-email").innerText = resposta.telemetria.emailsEnviados;
-  document.getElementById("txt-pct-email").innerText = resposta.telemetria.emailsPercentualUsado + "%";
-  document.getElementById("bar-fill-email").style.width = resposta.telemetria.emailsPercentualUsado + "%";
-
-  // 4. Renderização Fluída: Google Drive Global Storage
-  document.getElementById("lbl-val-drive").innerText = resposta.telemetria.driveOcupadoGB + " GB";
-  document.getElementById("txt-pct-drive").innerText = resposta.telemetria.drivePercentual + "%";
-  document.getElementById("bar-fill-drive").style.width = resposta.telemetria.drivePercentual + "%";
-}
-
-// GATILHO AUTOMÁTICO UX: Escuta a troca de regional no select principal
-document.addEventListener("DOMContentLoaded", function() {
-  var selectUF = document.getElementById("filtroUF");
-  if (selectUF) {
-    selectUF.addEventListener("change", function() {
-      // Modifica o subtexto descritivo do modal para dar feedback em tempo real
-      var lblEndpoint = document.getElementById("lbl-endpoint-ativo");
-      if (lblEndpoint) lblEndpoint.innerText = "Conectado ao Cluster " + this.value.toUpperCase() + " (V8 Engine)";
-      
-      // Se o modal estiver aberto, refaz a busca imediatamente para as métricas da nova UF
-      if (document.getElementById("modalPainelAdmin").style.display !== "none") {
-        dispararConsultaTelemetriaAdmin();
-      }
-    });
-  }
-});
-
         
     </script>
 
@@ -2529,72 +2463,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     </div>
 </div>
-
-<!-- MÓDULO DE ADMINISTRAÇÃO E DIAGNÓSTICO DA REDE -->
-<div id="modalPainelAdmin" class="dashboard-container" style="display: none;">
-  
-  <!-- 1. GRID SUPERIOR DE INDICADORES RÁPIDOS -->
-  <div class="kpi-responsive-grid" style="margin-bottom: 1rem;">
-    <div class="kpi-card-block">
-      <div class="kpi-card-label">👤 Operadores Online</div>
-      <div class="kpi-card-counter" id="adm-kpi-usuarios">1</div>
-    </div>
-    <div class="kpi-card-block">
-      <div class="kpi-card-label">🔌 Requisições (Hoje)</div>
-      <div class="kpi-card-counter" id="adm-kpi-requisicoes">34</div>
-    </div>
-    <div class="kpi-card-block">
-      <div class="kpi-card-label">⚡ Latência Média</div>
-      <div class="kpi-card-counter" id="adm-kpi-latencia" style="color: #FF9500;">2.08s</div>
-    </div>
-    <div class="kpi-card-block">
-      <div class="kpi-card-label">🌐 Status dos Clusters</div>
-      <div class="kpi-card-counter" id="adm-kpi-status" style="color: #34C759;">100% OK</div>
-    </div>
-  </div>
-
-  <!-- 2. BLOCO DE CONEXÕES E DIAGNÓSTICO DE PERFORMANCE -->
-  <div class="filter-responsive-grid">
-    <!-- Tabela de Operadores Conectados -->
-    <div class="dashboard-card-filters" style="padding: 1.25rem;">
-      <div class="monitor-panel-title" style="font-size: 0.9rem; margin-bottom: 1rem;">👥 Operadores Conectados (Últimos 5 min)</div>
-      <!-- Sua tabela de operabilidade atual se mantém renderizada aqui dentro -->
-    </div>
-
-    <!-- Painel Avançado de Cotas e Telemetria Google -->
-    <div class="dashboard-card-filters" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 0.85rem;">
-      <div class="monitor-panel-title" style="font-size: 0.9rem;">🛠️ Telemetria e Diagnóstico de Performance</div>
-      
-      <div class="telemetry-meta-row" style="font-size: 0.875rem;">Versão do Client Core (Front-End) <span style="color: #8A05BE;">v9.4.2-stable</span></div>
-      <div class="telemetry-meta-row" style="font-size: 0.875rem;">Endpoint Ativo <span id="lbl-endpoint-ativo" style="color: #34C759;">Conectado (V8 Engine)</span></div>
-      
-      <hr style="border: none; border-top: 1px dashed #E5E5EA; margin: 4px 0;">
-
-      <!-- Barra 1: Google Sheets Grid Density -->
-      <div class="progress-wrapper-inline">
-        <div class="telemetry-meta-row">Densidade do Google Sheets (Células Ocupadas) <span id="txt-pct-grid">0.00%</span></div>
-        <div class="progress-bar-bg"><div id="bar-fill-grid" class="progress-bar-fill"></div></div>
-        <div class="telemetry-meta-row" style="font-size:0.7rem; color:#8E8E93;">Volume Atual: <span id="lbl-val-grid" style="font-size:0.7rem; color:#8E8E93;">0 M</span> / 10M máx</div>
-      </div>
-
-      <!-- Barra 2: Gmail Quota Limits -->
-      <div class="progress-wrapper-inline">
-        <div class="telemetry-meta-row">Consumo Diário de E-mails (Gmail App) <span id="txt-pct-email">0.0%</span></div>
-        <div class="progress-bar-bg"><div id="bar-fill-email" class="progress-bar-fill"></div></div>
-        <div class="telemetry-meta-row" style="font-size:0.7rem; color:#8E8E93;">Envios efetuados: <span id="lbl-val-email" style="font-size:0.7rem; color:#8E8E93;">0</span> / 100 diários</div>
-      </div>
-
-      <!-- Barra 3: Google Drive Global Storage -->
-      <div class="progress-wrapper-inline">
-        <div class="telemetry-meta-row">Armazenamento em Nuvem (Google Drive) <span id="txt-pct-drive">0.0%</span></div>
-        <div class="progress-bar-bg"><div id="bar-fill-drive" class="progress-bar-fill"></div></div>
-        <div class="telemetry-meta-row" style="font-size:0.7rem; color:#8E8E93;">Espaço Ocupado: <span id="lbl-val-drive" style="font-size:0.7rem; color:#8E8E93;">0 GB</span> / 15 GB total</div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
 
 
 <style>
@@ -2728,12 +2596,12 @@ document.addEventListener("DOMContentLoaded", function() {
     .progress-bar-admin { width: 150px; height: 8px; background: #E5E5EA; border-radius: 4px; overflow: hidden; }
     .progress-fill-admin { height: 100%; background: #34C759; border-radius: 4px; }
 
+
 	/* =======================================================================
-	// PROGRESS BAR FLUIDA EM LINHA (MODAL TELEMETRIA)
+	// ESTILOS ADICIONAIS: COMPONENTES DA TORRE DE CONTROLE
 	// ======================================================================= */
 	.progress-wrapper-inline {
 	  width: 100%;
-	  margin-top: 0.5rem;
 	}
 	.progress-bar-bg {
 	  width: 100%;
@@ -2746,23 +2614,19 @@ document.addEventListener("DOMContentLoaded", function() {
 	.progress-bar-fill {
 	  height: 100%;
 	  background-color: #8A05BE; /* Roxo Nu Corporativo */
-	  width: 0%; /* Controlado dinamicamente via JS */
+	  width: 0%; /* Controlado via JavaScript */
 	  border-radius: 4px;
-	  transition: width 0.5s ease-in-out;
+	  transition: width 0.4s ease-in-out;
 	}
-	.telemetry-meta-row {
-	  display: flex;
-	  justify-content: space-between;
-	  font-size: 0.75rem;
-	  color: #6E6E73;
-	  margin-top: 2px;
+	#containerEndpointsDinamicosAdmin::-webkit-scrollbar {
+	  width: 4px;
 	}
-	.telemetry-meta-row span {
-	  font-weight: 700;
-	  color: #222222;
+	#containerEndpointsDinamicosAdmin::-webkit-scrollbar-thumb {
+	  background: #D2D2D7;
+	  border-radius: 2px;
 	}
 
-
+	
 </style>
 
 
@@ -2815,7 +2679,117 @@ document.addEventListener("DOMContentLoaded", function() {
     </div>
 </div>
 
-	
+<!-- =======================================================================
+// 🗼 TORRE DE CONTROLE: PAINEL DE ADMINISTRAÇÃO E DIAGNÓSTICO DE REDE
+// ======================================================================= -->
+<div id="modalPainelAdmin" class="dashboard-container" style="display: none;">
+  
+  <!-- BARRA DE ACESSOS E KPIs SUPERIORES DA REDE -->
+  <div class="kpi-responsive-grid" style="margin-bottom: 1rem;">
+    <div class="kpi-card-block">
+      <div class="kpi-card-label">👤 Operadores Online</div>
+      <div class="kpi-card-counter" id="adminKpiOnline">1</div>
+    </div>
+    <div class="kpi-card-block">
+      <div class="kpi-card-label">🔌 Requisições (Hoje)</div>
+      <div class="kpi-card-counter" id="adminKpiRequests">0</div>
+    </div>
+    <div class="kpi-card-block">
+      <div class="kpi-card-label">⚡ Latência Média</div>
+      <div class="kpi-card-counter" id="adminKpiLatencia" style="color: #FF9500;">Calculando...</div>
+    </div>
+    <div class="kpi-card-block">
+      <div class="kpi-card-label">🌐 Status do Cluster</div>
+      <div class="kpi-card-counter" id="adminKpiStatus" style="color: #34C759;">Aguardando</div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO DE DIAGNÓSTICO E TELEMETRIA CORPORATIVA -->
+  <div class="filter-responsive-grid">
+    
+    <!-- LADO ESQUERDO: Painel de Operadores Conectados -->
+    <div class="dashboard-card-filters" style="padding: 1.25rem;">
+      <div class="monitor-panel-title" style="font-size: 0.9rem; margin-bottom: 1rem;">👥 Operadores Ativos (Últimos 5 min)</div>
+      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+        <thead>
+          <tr style="border-bottom: 2px solid #E5E5EA; color: #6E6E73;">
+            <th style="padding: 6px 0;">Colaborador</th>
+            <th>Cluster UF</th>
+            <th>Atividade</th>
+          </tr>
+        </thead>
+        <tbody id="listaUsuariosOnlineAdmin">
+          <!-- Alimentado via JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- LADO DIREITO: Painel de Controle de Cotas e Infraestrutura Google -->
+    <div class="dashboard-card-filters" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 0.85rem;">
+      <div class="monitor-panel-title" style="font-size: 0.9rem;">🛠️ Limites Técnicos do Cluster</div>
+      
+      <div class="telemetry-meta-row" style="font-size: 0.85rem; display: flex; justify-content: space-between;">
+        <span>Versão do Client Core</span> 
+        <span style="color: #8A05BE; font-weight: bold;">v9.5.0-stable</span>
+      </div>
+      <div class="telemetry-meta-row" style="font-size: 0.85rem; display: flex; justify-content: space-between;">
+        <span>Barramento de Processamento</span> 
+        <span id="lblEndpointAtivo" style="color: #34C759; font-weight: bold;">Conectado (V8 Engine)</span>
+      </div>
+      
+      <hr style="border: none; border-top: 1px dashed #E5E5EA; margin: 4px 0;">
+
+      <!-- Barra de Cota 1: Densidade de Células (Google Sheets) -->
+      <div class="progress-wrapper-inline">
+        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #6E6E73;">
+          <span>Densidade do Google Sheets (Células Ocupadas)</span>
+          <span id="txtPctGrid" style="font-weight: 700; color: #222222;">0.00%</span>
+        </div>
+        <div class="progress-bar-bg"><div id="barFillGrid" class="progress-bar-fill"></div></div>
+        <div style="font-size: 0.7rem; color: #8E8E93; margin-top: 2px;">
+          Volume Atual: <span id="lblValGrid" style="font-weight: 700;">0.00 M</span> / 10M máx
+        </div>
+      </div>
+
+      <!-- Barra de Cota 2: Envio de E-mails (Gmail App Quota) -->
+      <div class="progress-wrapper-inline">
+        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #6E6E73;">
+          <span>Consumo de Cota de E-mails (Gmail App)</span>
+          <span id="txtPctEmail" style="font-weight: 700; color: #222222;">0.0%</span>
+        </div>
+        <div class="progress-bar-bg"><div id="barFillEmail" class="progress-bar-fill"></div></div>
+        <div style="font-size: 0.7rem; color: #8E8E93; margin-top: 2px;">
+          Envios Efetuados: <span id="lblValEmail" style="font-weight: 700;">0</span> / 100 diários
+        </div>
+      </div>
+
+      <!-- Barra de Cota 3: Armazenamento Físico (Google Drive Storage) -->
+      <div class="progress-wrapper-inline">
+        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #6E6E73;">
+          <span>Armazenamento em Nuvem (Google Drive)</span>
+          <span id="txtPctDrive" style="font-weight: 700; color: #222222;">0.0%</span>
+        </div>
+        <div class="progress-bar-bg"><div id="barFillDrive" class="progress-bar-fill"></div></div>
+        <div style="font-size: 0.7rem; color: #8E8E93; margin-top: 2px;">
+          Espaço Utilizado: <span id="lblValDrive" style="font-weight: 700;">0.00 GB</span> / 15 GB total
+        </div>
+      </div>
+
+      <!-- Lista Dinâmica Expandida de Endpoints Ativos -->
+      <div id="containerEndpointsDinamicosAdmin" style="margin-top: 0.5rem; max-height: 120px; overflow-y: auto; font-size: 0.75rem; color: #6E6E73; display: flex; flex-direction: column; gap: 4px;">
+        <!-- Injetado dinamicamente via JS -->
+      </div>
+
+      <!-- BOTÃO DE FECHAMENTO DO MODAL -->
+      <button onclick="document.getElementById('modalPainelAdmin').style.display='none'" 
+              style="width: 100%; background-color: #F4F4F7; color: #222222; border: 1px solid #D2D2D7; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 700; margin-top: 0.5rem; transition: background 0.2s;">
+        ✕ Fechar Torre de Controle
+      </button>
+
+    </div>
+  </div>
+
+</div>
     
 </body>
 </html>
